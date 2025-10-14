@@ -1,6 +1,10 @@
-import AuthPage from "@/components/auth/auth";
+'use client';
+
+import LoginPage from "@/components/auth/auth";
+
+
 export default function MainPage() {
-  return <>
-    <AuthPage />
-  </>;
+  return (
+      <LoginPage />
+  );
 }

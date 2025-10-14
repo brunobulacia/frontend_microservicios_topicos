@@ -6,10 +6,9 @@ import { InscribirEstudiante } from "@/types/inscribir-estudiante";
 import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-
-
-export default function GrupoMateriasPage({
+function GrupoMateriasContent({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -192,4 +191,16 @@ export default function GrupoMateriasPage({
         </div>
       </div>
     );
+}
+
+export default function GrupoMateriasPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  return (
+    <ProtectedRoute>
+      <GrupoMateriasContent params={params} />
+    </ProtectedRoute>
+  );
 }

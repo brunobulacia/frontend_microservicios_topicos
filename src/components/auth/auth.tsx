@@ -1,85 +1,136 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import LoginDto from "@/types/login.dto";
-import { login } from "@/api/auth";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/auth.store";
+'use client';
 
-export default function AuthPage() {
-  const { register, handleSubmit } = useForm<LoginDto>();
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/auth.store';
+import { login } from '@/api/auth';
+import LoginDto from '@/types/login.dto';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+export default function LoginPage() {
+  const [formData, setFormData] = useState<LoginDto>({
+    matricula: '',
+    password: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const { setAuthData, token, maestroDeOferta } = useAuthStore();
   const router = useRouter();
-  const setAuthData = useAuthStore((state) => state.setAuthData);
 
-
-  const onSubmit = async (data: LoginDto) => {
-    try {
-      const response = await login(data);
-      setAuthData(response);
-      console.log(response);
-      if (response) {
-        router.push(`/grupo-materias/${response.MaestroDeOferta[0].id}`);
-      }
-    } catch (error) {
-      console.error("Error logging in:", error);
+  // Si ya está autenticado, redirigir automáticamente
+  useEffect(() => {
+    if (token && maestroDeOferta && Array.isArray(maestroDeOferta) && maestroDeOferta.length > 0) {
+      router.replace(`/grupo-materias/${maestroDeOferta[0].id}`);
     }
+  }, [token, maestroDeOferta, router]);
+
+  // Si ya está autenticado, mostrar loading mientras redirige
+  if (token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirigiendo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await login(formData);
+      console.log('Login response:', response); // Debug log
+      
+      // Verificar que la respuesta tenga la estructura esperada
+      const maestroData = response.MaestroDeOferta || response.maestroDeOferta;
+      if (!maestroData || !Array.isArray(maestroData) || maestroData.length === 0) {
+        throw new Error('No se encontró información del maestro de oferta');
+      }
+
+      setAuthData(response);
+      
+      // Usar replace para evitar problemas de navegación
+      await router.replace(`/grupo-materias/${maestroData[0].id}`);
+    } catch (err) {
+      console.error('Login error:', err); // Debug log
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      setIsLoading(false); // Solo resetear loading en caso de error
+    }
+    // No resetear loading aquí - se maneja en el useEffect o en el error
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev: LoginDto) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Sistema de Inscripcion Universitario</CardTitle>
-          <CardDescription>
-            Introduzca sus credenciales para iniciar sesión
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">
+            Iniciar Sesión
+          </CardTitle>
+          <CardDescription className="text-center">
+            Ingresa tus credenciales para acceder a tu cuenta
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="registro">Registro</Label>
-                <Input
-                  id="registro"
-                  type="text"
-                  placeholder="Ej: 20123456"
-                  required
-                  {...register("matricula")}
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  {...register("password")}
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="matricula">Matrícula</Label>
+              <Input
+                id="matricula"
+                name="matricula"
+                type="text"
+                required
+                value={formData.matricula}
+                onChange={handleChange}
+                placeholder="223041866"
+                disabled={isLoading}
+              />
             </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                disabled={isLoading}
+              />
+            </div>
+
+            {error && (
+              <div className="text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex-col gap-2">
-          <Button
-            type="submit"
-            onClick={handleSubmit(onSubmit)}
-            className="w-full"
-          >
-            Iniciar Sesión
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

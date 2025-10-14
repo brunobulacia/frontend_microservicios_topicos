@@ -1,12 +1,19 @@
+export interface MaestroDeOferta {
+  id: string;
+  [key: string]: any; // Para otros campos que pueda tener
+}
+
 export interface LoginResponseDto {
   access_token: string;
-  id: string;
+  id: number;
   nombre: string;
+  email: string;
   apellido_paterno: string;
   apellido_materno: string;
   telefono: string;
   ci: string;
-  email: string;
   matricula: string;
   ppac: number;
+  maestroDeOferta?: MaestroDeOferta[];
+  MaestroDeOferta?: MaestroDeOferta[];
 }
