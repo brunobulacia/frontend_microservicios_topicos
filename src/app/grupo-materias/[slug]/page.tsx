@@ -30,7 +30,6 @@ function GrupoMateriasContent({
     success,
     error: inscripcionError,
     iniciarInscripcion,
-    cancelarInscripcion,
     cleanup,
   } = useInscripcionAsync();
 
@@ -45,12 +44,9 @@ function GrupoMateriasContent({
         
         console.log('Datos recibidos:', data);
         console.log('Token de autenticación:', token);
-        // Verificar que recibimos un array con datos
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error('No se encontraron ofertas para este maestro de oferta');
-        }
         
-        setOfertasGrupoMateria(data);
+        // Si no hay datos, simplemente seteamos un array vacío
+        setOfertasGrupoMateria(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error al cargar la oferta:', err);
         setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -69,14 +65,32 @@ function GrupoMateriasContent({
     };
   }, [cleanup]);
 
-  // Limpiar selección cuando la inscripción sea exitosa
+  // Recargar datos cuando la inscripción sea exitosa
   useEffect(() => {
     if (success) {
-      setTimeout(() => {
+      setTimeout(async () => {
         setSelectedIds([]);
-      }, 3000);
+        // Recargar los datos para obtener las materias actualizadas
+        try {
+          setLoading(true);
+          const resolvedParams = await params;
+          const { slug } = resolvedParams;
+          
+          const data: OfertaGrupoMateria[] = await getOfertaGrupoMateria(slug);
+          
+          console.log('Datos recargados después de inscripción:', data);
+          
+          setOfertasGrupoMateria(Array.isArray(data) ? data : []);
+          setError(null); // Limpiar cualquier error previo
+        } catch (err) {
+          console.error('Error al recargar las ofertas:', err);
+          setError(err instanceof Error ? err.message : 'Error al recargar los datos');
+        } finally {
+          setLoading(false);
+        }
+      }, 2000); // Esperar 2 segundos para mostrar el mensaje de éxito
     }
-  }, [success]);
+  }, [success, params]);
 
   // Handler para manejar la selección de checkboxes
   const handleCheckboxChange = (id: string) => {
@@ -144,6 +158,41 @@ function GrupoMateriasContent({
               >
                 Intentar de nuevo
               </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar mensaje cuando no hay materias disponibles
+  if (!loading && ofertasGrupoMateria.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-blue-200 bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-2xl text-blue-600 flex items-center gap-2">
+                <span>🎉</span>
+                ¡Felicitaciones!
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">📚</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  Has completado todas tus inscripciones
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  No hay más materias disponibles para inscribir en este período académico.
+                </p>
+                <Button 
+                  onClick={() => window.history.back()} 
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                >
+                  Volver atrás
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -316,16 +365,6 @@ function GrupoMateriasContent({
             </div>
             
             <div className="flex items-center gap-3">
-              {isProcessing && (
-                <Button
-                  onClick={cancelarInscripcion}
-                  variant="outline"
-                  className="px-4 py-2 border-red-300 text-red-600 hover:bg-red-50"
-                >
-                  Cancelar
-                </Button>
-              )}
-              
               <Button
                 onClick={handleConfirmSelection}
                 disabled={selectedIds.length === 0 || isProcessing}
