@@ -42,7 +42,7 @@ export default function Navbar() {
                   Sistema de Inscripciones
                 </h1>
                 <p className="text-xs text-blue-100 hidden sm:block">
-                  Universidad Mayor de San Andrés
+                  Universidad Autonoma Gabriel René Moreno
                 </p>
               </div>
             </Link>

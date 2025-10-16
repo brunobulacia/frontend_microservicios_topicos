@@ -1,8 +1,6 @@
 "use client"
 
-import { getInscripcionAsync } from "@/api/inscripcion-async";
 import { getOfertaGrupoMateria } from "@/api/ofertaGrupoMateria";
-import { InscribirEstudiante } from "@/types/inscribir-estudiante";
 import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
@@ -10,6 +8,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useInscripcionAsync } from "@/hooks/useInscripcionAsync";
+import InscripcionProgress from "@/components/InscripcionProgress";
 
 function GrupoMateriasContent({
   params,
@@ -20,10 +20,19 @@ function GrupoMateriasContent({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [inscribing, setInscribing] = useState(false);
-  const [success, setSuccess] = useState(false);
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
+  
+  // Hook para manejar inscripciones asíncronas
+  const {
+    isProcessing,
+    jobStatus,
+    success,
+    error: inscripcionError,
+    iniciarInscripcion,
+    cancelarInscripcion,
+    cleanup,
+  } = useInscripcionAsync();
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,6 +62,22 @@ function GrupoMateriasContent({
     loadData();
   }, [params]);
 
+  // Cleanup del polling al desmontar el componente
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup]);
+
+  // Limpiar selección cuando la inscripción sea exitosa
+  useEffect(() => {
+    if (success) {
+      setTimeout(() => {
+        setSelectedIds([]);
+      }, 3000);
+    }
+  }, [success]);
+
   // Handler para manejar la selección de checkboxes
   const handleCheckboxChange = (id: string) => {
     setSelectedIds(prev => {
@@ -67,34 +92,10 @@ function GrupoMateriasContent({
   };
   const handleConfirmSelection = async () => {
     if (selectedIds.length === 0) return;
-
-    setInscribing(true);
-    setError(null);
-
-    try {
-      const data: InscribirEstudiante = {
-        registro: user?.matricula || '',
-        materiasId: selectedIds
-      };
-      
-      const result = await getInscripcionAsync(data);
-      console.log('Resultado de la inscripción:', result);
-      
-      setSuccess(true);
-      
-      // Mostrar mensaje de éxito por 3 segundos y luego limpiar
-      setTimeout(() => {
-        setSuccess(false);
-        setSelectedIds([]); // Limpiar selección después del éxito
-      }, 3000);
-      
-    } catch (err) {
-      console.error('Error en la inscripción:', err);
-      setError(err instanceof Error ? err.message : 'Error al procesar la inscripción');
-    } finally {
-      setInscribing(false);
-    }
-  }
+    
+    // Usar el hook para iniciar la inscripción asíncrona
+    await iniciarInscripcion(selectedIds);
+  };
 
   // Handler para seleccionar/deseleccionar todos
   const handleSelectAll = () => {
@@ -167,8 +168,7 @@ function GrupoMateriasContent({
                   </p>
                 </div>
                 
-                {/* Controles de selección */}
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <Button
                     onClick={handleSelectAll}
                     variant="outline"
@@ -182,7 +182,7 @@ function GrupoMateriasContent({
                       {selectedIds.length} seleccionado{selectedIds.length !== 1 ? 's' : ''}
                     </Badge>
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -212,7 +212,7 @@ function GrupoMateriasContent({
                       </Badge>
                       <Badge 
                         className={`text-xs ${
-                          oferta.GrupoMateria.cupos > 10 
+                          oferta.GrupoMateria.cupos >= 10 
                             ? 'bg-green-100 text-green-700' 
                             : oferta.GrupoMateria.cupos > 5 
                             ? 'bg-yellow-100 text-yellow-700'
@@ -269,8 +269,19 @@ function GrupoMateriasContent({
           ))}
         </div>
         
+        {/* Componente de progreso de inscripción */}
+        {isProcessing && (
+          <div className="mb-6">
+            <InscripcionProgress 
+              jobStatus={jobStatus}
+              isProcessing={isProcessing}
+              selectedCount={selectedIds.length}
+            />
+          </div>
+        )}
+
         {/* Mensaje de error */}
-        {error && (
+        {(error || inscripcionError) && (
           <div className="mb-6">
             <Card className="border-red-200 bg-red-50/80 backdrop-blur-sm">
               <CardContent className="p-4">
@@ -278,7 +289,7 @@ function GrupoMateriasContent({
                   <span className="text-xl">❌</span>
                   <div>
                     <p className="font-medium">Error en la inscripción</p>
-                    <p className="text-sm text-red-600">{error}</p>
+                    <p className="text-sm text-red-600">{error || inscripcionError}</p>
                   </div>
                 </div>
               </CardContent>
@@ -304,33 +315,46 @@ function GrupoMateriasContent({
               </div>
             </div>
             
-            <Button
-              onClick={handleConfirmSelection}
-              disabled={selectedIds.length === 0 || inscribing}
-              className={`px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${
-                success 
-                  ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
-                  : inscribing
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                  : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
-              }`}
-            >
-              {inscribing ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  Procesando...
-                </div>
-              ) : success ? (
-                <div className="flex items-center gap-2">
-                  <span>✅</span>
-                  ¡Inscripción exitosa!
-                </div>
-              ) : selectedIds.length === 0 ? (
-                'Selecciona materias'
-              ) : (
-                `Confirmar inscripción (${selectedIds.length})`
+            <div className="flex items-center gap-3">
+              {isProcessing && (
+                <Button
+                  onClick={cancelarInscripcion}
+                  variant="outline"
+                  className="px-4 py-2 border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  Cancelar
+                </Button>
               )}
-            </Button>
+              
+              <Button
+                onClick={handleConfirmSelection}
+                disabled={selectedIds.length === 0 || isProcessing}
+                className={`px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${
+                  success 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+                    : isProcessing
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
+                }`}
+              >
+                {isProcessing ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    {jobStatus?.status === 'queued' || jobStatus?.status === 'pending' ? 'En cola...' : 
+                     jobStatus?.status === 'waiting' ? 'Procesando...' : 'Iniciando...'}
+                  </div>
+                ) : success ? (
+                  <div className="flex items-center gap-2">
+                    <span>✅</span>
+                    ¡Inscripción exitosa!
+                  </div>
+                ) : selectedIds.length === 0 ? (
+                  'Selecciona materias'
+                ) : (
+                  `Confirmar inscripción (${selectedIds.length})`
+                )}
+              </Button>
+            </div>
           </div>
         </div>
         
