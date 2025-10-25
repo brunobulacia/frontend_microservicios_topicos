@@ -2,6 +2,7 @@
 
 import { JobStatus } from '@/hooks/useInscripcionAsync';
 import { Card, CardContent } from '@/components/ui/card';
+import { Clock, Loader, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 
 interface InscripcionProgressProps {
   jobStatus: JobStatus | null;
@@ -23,7 +24,7 @@ export default function InscripcionProgress({
       case 'queued':
       case 'pending':
         return {
-          icon: '⏳',
+          icon: <Clock className="w-6 h-6" />,
           title: 'En cola de procesamiento',
           description: `Tu inscripción de ${selectedCount} materia${selectedCount !== 1 ? 's' : ''} está en cola esperando ser procesada`,
           color: 'text-blue-600',
@@ -32,7 +33,7 @@ export default function InscripcionProgress({
         };
       case 'waiting':
         return {
-          icon: '⚙️',
+          icon: <Loader className="w-6 h-6 animate-spin" />,
           title: 'Procesando inscripción',
           description: 'Un worker está procesando tu solicitud de inscripción',
           color: 'text-orange-600',
@@ -41,7 +42,7 @@ export default function InscripcionProgress({
         };
       case 'completed':
         return {
-          icon: '✅',
+          icon: <CheckCircle className="w-6 h-6" />,
           title: '¡Inscripción completada!',
           description: 'Tu inscripción se ha procesado exitosamente',
           color: 'text-green-600',
@@ -50,7 +51,7 @@ export default function InscripcionProgress({
         };
       case 'failed':
         return {
-          icon: '❌',
+          icon: <XCircle className="w-6 h-6" />,
           title: 'Error en la inscripción',
           description: 'Hubo un problema al procesar tu inscripción',
           color: 'text-red-600',
@@ -59,7 +60,7 @@ export default function InscripcionProgress({
         };
       default:
         return {
-          icon: '🔄',
+          icon: <RotateCcw className="w-6 h-6" />,
           title: 'Procesando...',
           description: 'Procesando tu solicitud',
           color: 'text-gray-600',
@@ -75,20 +76,11 @@ export default function InscripcionProgress({
     <Card className={`border-2 ${statusInfo.borderColor} ${statusInfo.bgColor} backdrop-blur-sm`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          {/* Icon y spinner */}
+          {/* Icon */}
           <div className="flex items-center justify-center">
-            {jobStatus.status === 'queued' || jobStatus.status === 'pending' || jobStatus.status === 'waiting' ? (
-              <div className="relative">
-                {/* Spinner animado */}
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-500"></div>
-                {/* Icon en el centro */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs">{statusInfo.icon}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="text-2xl">{statusInfo.icon}</div>
-            )}
+            <div className={`${statusInfo.color}`}>
+              {statusInfo.icon}
+            </div>
           </div>
 
           {/* Información del estado */}

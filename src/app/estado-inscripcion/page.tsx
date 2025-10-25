@@ -9,6 +9,7 @@ import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { getInscripcionStatus } from "@/api/inscripcion-async";
 import { useAuthStore } from "@/store/auth.store";
+import { AlertCircle, BarChart3, BookOpen, RotateCcw, CheckCircle, XCircle, Clock, Loader, FileText, Home } from 'lucide-react';
 
 type JobStatus = 'completed' | 'waiting' | 'active' | 'delayed' | 'failed' | 'paused';
 
@@ -129,7 +130,7 @@ function EstadoInscripcionContent() {
       case 'delayed':
       case 'paused':
         return {
-          icon: '⏳',
+          icon: <Clock className="w-6 h-6" />,
           title: 'En cola',
           description: 'Tu inscripción está en cola de procesamiento',
           color: 'text-yellow-600',
@@ -139,7 +140,7 @@ function EstadoInscripcionContent() {
       case 'waiting':
       case 'active':
         return {
-          icon: '⚙️',
+          icon: <Loader className="w-6 h-6 animate-spin" />,
           title: 'Procesando',
           description: 'Estamos procesando tu inscripción',
           color: 'text-blue-600',
@@ -148,7 +149,7 @@ function EstadoInscripcionContent() {
         };
       case 'completed':
         return {
-          icon: '✅',
+          icon: <CheckCircle className="w-6 h-6" />,
           title: '¡Inscripción exitosa!',
           description: 'Tu inscripción se ha completado correctamente',
           color: 'text-green-600',
@@ -157,7 +158,7 @@ function EstadoInscripcionContent() {
         };
       case 'failed':
         return {
-          icon: '❌',
+          icon: <XCircle className="w-6 h-6" />,
           title: 'Inscripción fallida',
           description: 'Ocurrió un error durante la inscripción',
           color: 'text-red-600',
@@ -166,7 +167,7 @@ function EstadoInscripcionContent() {
         };
       default:
         return {
-          icon: '❓',
+          icon: <AlertCircle className="w-6 h-6" />,
           title: 'Estado desconocido',
           description: 'No se pudo determinar el estado',
           color: 'text-gray-600',
@@ -193,11 +194,11 @@ function EstadoInscripcionContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-slate-600 mx-auto mb-4"></div>
               <p className="text-gray-600 text-lg">Cargando estado de inscripción...</p>
             </div>
           </div>
@@ -209,14 +210,14 @@ function EstadoInscripcionContent() {
   const statusInfo = jobResponse ? getStatusInfo(jobResponse.status) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center justify-center gap-3 mb-2">
-                <span className="text-2xl">📊</span>
+              <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3 mb-2">
+                <BarChart3 className="w-8 h-8 text-slate-600" />
                 Estado de Inscripción
               </h1>
               <p className="text-gray-600">
@@ -308,7 +309,7 @@ function EstadoInscripcionContent() {
             <Card className="border-red-200 bg-red-50">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 text-red-700">
-                  <span className="text-xl">⚠️</span>
+                  <AlertCircle className="w-5 h-5" />
                   <div>
                     <p className="font-medium">Error de conexión</p>
                     <p className="text-sm text-red-600">{error}</p>
@@ -322,10 +323,10 @@ function EstadoInscripcionContent() {
         {/* Resumen de materias (si están disponibles) */}
         {materiasInscripcion.length > 0 && (
           <div className="mb-8">
-            <Card className="bg-white/80 backdrop-blur-sm border-white/20">
+            <Card className="bg-white shadow-sm border-gray-200">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span>📚</span>
+                  <BookOpen className="w-5 h-5 text-slate-600" />
                   Materias en proceso ({materiasInscripcion.length})
                 </CardTitle>
               </CardHeader>
@@ -362,16 +363,17 @@ function EstadoInscripcionContent() {
             <>
               <Button
                 onClick={handleVerBoleta}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                className="px-6 py-3 bg-slate-700 hover:bg-slate-800 text-white"
               >
-                📄 Ver mi boleta de inscripción
+                <FileText className="w-4 h-4 mr-2" />
+                Ver mi boleta de inscripción
               </Button>
               <Button
                 onClick={handleVolverInicio}
                 variant="outline"
-                className="px-6 py-3 bg-white/50 hover:bg-white/70"
+                className="px-6 py-3 border-gray-300 hover:bg-gray-50"
               >
-                🏠 Volver al inicio
+                Volver al inicio
               </Button>
             </>
           )}
@@ -380,16 +382,17 @@ function EstadoInscripcionContent() {
             <>
               <Button
                 onClick={handleIntentarDeNuevo}
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+                className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white"
               >
-                🔄 Intentar de nuevo
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Intentar de nuevo
               </Button>
               <Button
                 onClick={handleVolverInicio}
                 variant="outline"
-                className="px-6 py-3 bg-white/50 hover:bg-white/70"
+                className="px-6 py-3 border-gray-300 hover:bg-gray-50"
               >
-                🏠 Volver al inicio
+                Volver al inicio
               </Button>
             </>
           )}
@@ -402,10 +405,11 @@ function EstadoInscripcionContent() {
               <Button
                 onClick={handleVolverInicio}
                 variant="outline"
-                className="px-6 py-3 bg-white/50 hover:bg-white/70"
+                className="px-6 py-3 border-gray-300 hover:bg-gray-50"
                 disabled={polling}
               >
-                🏠 Cancelar y volver al inicio
+                <Home className="w-4 h-4 mr-2" />
+                Cancelar y volver al inicio
               </Button>
             </div>
           )}

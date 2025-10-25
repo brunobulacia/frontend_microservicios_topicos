@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AlertCircle, BookOpen, ArrowRight, CheckSquare, User, MapPin, Clock } from 'lucide-react';
 
 function GrupoMateriasContent({
   params,
@@ -96,11 +97,11 @@ function GrupoMateriasContent({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-slate-600 mx-auto mb-4"></div>
               <p className="text-gray-600 text-lg">Cargando ofertas académicas...</p>
               <p className="text-gray-500 text-sm mt-2">Por favor espera un momento</p>
             </div>
@@ -112,12 +113,12 @@ function GrupoMateriasContent({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-red-200 bg-white/80 backdrop-blur-sm">
+          <Card className="border-red-200 bg-white shadow-sm">
             <CardHeader>
-              <CardTitle className="text-2xl text-red-600 flex items-center gap-2">
-                <span>⚠️</span>
+              <CardTitle className="text-2xl text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-6 h-6" />
                 Error al cargar las ofertas
               </CardTitle>
             </CardHeader>
@@ -140,18 +141,18 @@ function GrupoMateriasContent({
   // Mostrar mensaje cuando no hay materias disponibles
   if (!loading && ofertasGrupoMateria.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-blue-200 bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 bg-white shadow-sm">
             <CardHeader>
-              <CardTitle className="text-2xl text-blue-600 flex items-center gap-2">
-                <span>🎉</span>
+              <CardTitle className="text-2xl text-slate-700 flex items-center gap-2">
+                <CheckSquare className="w-6 h-6 text-green-600" />
                 ¡Felicitaciones!
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <div className="text-6xl mb-4">📚</div>
+                <BookOpen className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">
                   Has completado todas tus inscripciones
                 </h3>
@@ -160,7 +161,7 @@ function GrupoMateriasContent({
                 </p>
                 <Button 
                   onClick={() => window.history.back()} 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                  className="bg-slate-600 hover:bg-slate-700 text-white"
                 >
                   Volver atrás
                 </Button>
@@ -173,15 +174,15 @@ function GrupoMateriasContent({
   }
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                    <span className="text-2xl">📚</span>
+                  <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                    <BookOpen className="w-8 h-8 text-slate-600" />
                     Ofertas Académicas
                   </h1>
                   <p className="text-gray-600 mt-2">
@@ -193,7 +194,7 @@ function GrupoMateriasContent({
                   <Button
                     onClick={handleSelectAll}
                     variant="outline"
-                    className="bg-white/50 hover:bg-white/70 border-blue-200"
+                    className="border-gray-300 hover:bg-gray-50"
                   >
                     {selectedIds.length === ofertasGrupoMateria.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
                   </Button>
@@ -280,7 +281,10 @@ function GrupoMateriasContent({
                 <div className="space-y-3">
                   {/* Información del docente */}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 font-medium">👨‍🏫 Docente:</span>
+                    <span className="text-gray-600 font-medium flex items-center gap-1">
+                      <User className="w-4 h-4" />
+                      Docente:
+                    </span>
                     <span className="text-gray-800 font-medium">
                       {nombreDocente}
                     </span>
@@ -290,14 +294,20 @@ function GrupoMateriasContent({
                   {aula && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 font-medium">🏫 Aula:</span>
+                        <span className="text-gray-600 font-medium flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          Aula:
+                        </span>
                         <span className="text-gray-800 font-semibold">
                           Aula {aula.aula.numero}
                         </span>
                       </div>
                       
                       <div className="text-sm">
-                        <span className="text-gray-600 font-medium">🕐 Horario:</span>
+                        <span className="text-gray-600 font-medium flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          Horario:
+                        </span>
                         <div className="mt-1 space-y-1">
                           {aula.horario.map((horario, index) => (
                             <div key={index} className="text-xs text-gray-700 bg-gray-50 p-2 rounded flex justify-between">
@@ -320,8 +330,8 @@ function GrupoMateriasContent({
                   
                   {/* Indicador de selección */}
                   {selectedIds.includes(oferta.id) && (
-                    <div className="flex items-center gap-2 text-green-700 text-sm font-medium bg-green-50 p-2 rounded">
-                      <span>✅</span>
+                    <div className="flex items-center gap-2 text-green-700 text-sm font-medium bg-green-50 p-2 rounded border border-green-200">
+                      <CheckSquare className="w-4 h-4" />
                       <span>Seleccionada para inscripción</span>
                     </div>
                   )}
@@ -334,7 +344,7 @@ function GrupoMateriasContent({
 
 
         {/* Panel de resumen y acciones */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -355,12 +365,15 @@ function GrupoMateriasContent({
               <Button
                 onClick={handleConfirmSelection}
                 disabled={selectedIds.length === 0}
-                className="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                className="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-slate-700 hover:bg-slate-800 text-white"
               >
                 {selectedIds.length === 0 ? (
                   'Selecciona materias'
                 ) : (
-                  `Continuar con ${selectedIds.length} materia${selectedIds.length !== 1 ? 's' : ''}`
+                  <>
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Continuar con {selectedIds.length} materia{selectedIds.length !== 1 ? 's' : ''}
+                  </>
                 )}
               </Button>
             </div>

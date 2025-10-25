@@ -9,6 +9,7 @@ import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { getInscripcionAsync } from "@/api/inscripcion-async";
 import { useAuthStore } from "@/store/auth.store";
+import { AlertCircle, FileText, BarChart3, CheckCircle2, User, MapPin, Clock } from 'lucide-react';
 
 function ConfirmarInscripcionContent() {
   const router = useRouter();
@@ -86,11 +87,11 @@ function ConfirmarInscripcionContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-slate-600 mx-auto mb-4"></div>
               <p className="text-gray-600 text-lg">Cargando confirmación...</p>
             </div>
           </div>
@@ -101,12 +102,12 @@ function ConfirmarInscripcionContent() {
 
   if (materiasSeleccionadas.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-red-200 bg-white/80 backdrop-blur-sm">
+          <Card className="border-red-200 bg-white shadow-sm">
             <CardHeader>
-              <CardTitle className="text-2xl text-red-600 flex items-center gap-2">
-                <span>⚠️</span>
+              <CardTitle className="text-2xl text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-6 h-6" />
                 No hay materias seleccionadas
               </CardTitle>
             </CardHeader>
@@ -125,14 +126,14 @@ function ConfirmarInscripcionContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center justify-center gap-3 mb-2">
-                <span className="text-2xl">📋</span>
+              <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3 mb-2">
+                <FileText className="w-8 h-8 text-slate-600" />
                 Confirmar Inscripción
               </h1>
               <p className="text-gray-600">
@@ -144,10 +145,10 @@ function ConfirmarInscripcionContent() {
 
         {/* Resumen de materias */}
         <div className="mb-6">
-          <Card className="bg-white/80 backdrop-blur-sm border-white/20">
+          <Card className="bg-white shadow-sm border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span>📊</span>
+                <BarChart3 className="w-5 h-5 text-slate-600" />
                 Resumen de Inscripción
               </CardTitle>
             </CardHeader>
@@ -213,13 +214,19 @@ function ConfirmarInscripcionContent() {
                     {/* Columna izquierda: Docente y Aula */}
                     <div className="space-y-3">
                       <div className="text-sm">
-                        <span className="text-gray-600 font-medium">👨‍🏫 Docente:</span>
+                        <span className="text-gray-600 font-medium flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          Docente:
+                        </span>
                         <p className="text-gray-800 font-medium">{nombreDocente}</p>
                       </div>
                       
                       {aula && (
                         <div className="text-sm">
-                          <span className="text-gray-600 font-medium">🏫 Aula:</span>
+                          <span className="text-gray-600 font-medium flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            Aula:
+                          </span>
                           <p className="text-gray-800 font-semibold">Aula {aula.aula.numero}</p>
                         </div>
                       )}
@@ -235,7 +242,10 @@ function ConfirmarInscripcionContent() {
                     {/* Columna derecha: Horario */}
                     {aula && (
                       <div className="text-sm">
-                        <span className="text-gray-600 font-medium">🕐 Horario:</span>
+                        <span className="text-gray-600 font-medium flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          Horario:
+                        </span>
                         <div className="mt-1 space-y-1">
                           {aula.horario.map((horario, idx) => (
                             <div key={idx} className="text-xs text-gray-700 bg-gray-50 p-2 rounded flex justify-between">
@@ -267,7 +277,7 @@ function ConfirmarInscripcionContent() {
           <Button
             onClick={handleConfirmarInscripcion}
             disabled={procesando}
-            className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 bg-slate-700 hover:bg-slate-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {procesando ? (
               <div className="flex items-center gap-2">
@@ -276,7 +286,8 @@ function ConfirmarInscripcionContent() {
               </div>
             ) : (
               <>
-                ✅ Confirmar inscripción ({materiasSeleccionadas.length} materias)
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Confirmar inscripción ({materiasSeleccionadas.length} materias)
               </>
             )}
           </Button>
