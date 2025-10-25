@@ -18,8 +18,8 @@ function BoletaContent() {
     const fetchBoleta = async () => {
       try {
         setLoading(true);
-        if (user?.matricula) {
-          const data = await getMateriasInscritas(user.matricula);
+        if (user) {
+          const data = await getMateriasInscritas(user.id.toString());
           console.log('Datos de boleta:', data);
           // Asumiendo que la API devuelve un array de BoletaInscripcion
           setMaterias(Array.isArray(data) ? data : []);
@@ -33,7 +33,7 @@ function BoletaContent() {
     };
     
     fetchBoleta();
-  }, [user?.matricula]);
+  }, [user?.registro]);
 
   if (loading) {
     return (
@@ -61,7 +61,7 @@ function BoletaContent() {
 
   // Agrupar materias por semestre
   const materiasPorSemestre = materias.reduce((acc, materia) => {
-    const semestre = materia.grupoMateria.materia.nivel.semestre;
+    const semestre = materia.materia.nivel.semestre;
     if (!acc[semestre]) {
       acc[semestre] = [];
     }
@@ -80,7 +80,7 @@ function BoletaContent() {
           Estudiante: {user?.nombre} {user?.apellido_paterno} {user?.apellido_materno}
         </p>
         <p className="text-gray-500 text-sm">
-          Matrícula: {user?.matricula}
+          Matrícula: {user?.registro}
         </p>
       </div>
 

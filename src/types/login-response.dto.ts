@@ -12,7 +12,7 @@ export interface LoginResponseDto {
   apellido_materno: string;
   telefono: string;
   ci: string;
-  matricula: string;
+  registro: string;
   ppac: number;
   maestroDeOferta?: MaestroDeOferta[];
   MaestroDeOferta?: MaestroDeOferta[];

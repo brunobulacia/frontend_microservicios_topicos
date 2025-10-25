@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { getInscripcionAsync } from "@/api/inscripcion-async";
-import { getInscripcionStatus } from "@/api/boletaInscripcion";
+import {
+  getInscripcionAsync,
+  getInscripcionStatus,
+} from "@/api/inscripcion-async";
 import { InscribirEstudiante } from "@/types/inscribir-estudiante";
 import { useAuthStore } from "@/store/auth.store";
 // Función simple para generar UUID sin dependencias externas
@@ -50,12 +52,12 @@ export function useInscripcionAsync() {
   // Generar requestId único para idempotencia
   const generateRequestId = useCallback(
     (materiasIds: string[]): string => {
-      const baseData = `${user?.matricula}-${materiasIds
+      const baseData = `${user?.registro}-${materiasIds
         .sort()
         .join(",")}-${Date.now()}`;
       return generateUUID(); // Usamos UUID para mayor unicidad
     },
-    [user?.matricula]
+    [user?.registro]
   );
 
   // Función para hacer polling del estado del job
@@ -126,7 +128,7 @@ export function useInscripcionAsync() {
   // Función principal para iniciar inscripción
   const iniciarInscripcion = useCallback(
     async (materiasIds: string[]) => {
-      if (!user?.matricula) {
+      if (!user?.registro) {
         setState((prev) => ({ ...prev, error: "Usuario no autenticado" }));
         return;
       }
@@ -162,8 +164,8 @@ export function useInscripcionAsync() {
 
       try {
         const inscripcionData: InscribirEstudiante = {
-          registro: user.matricula,
-          materiasId: materiasIds,
+          registro: user.registro,
+          ofertaId: materiasIds,
         };
 
         // Enviar solicitud de inscripción
@@ -197,7 +199,7 @@ export function useInscripcionAsync() {
         currentRequestIdRef.current = null;
       }
     },
-    [user?.matricula, generateRequestId, startPolling]
+    [user?.registro, generateRequestId, startPolling]
   );
 
   // Función para cancelar la operación actual

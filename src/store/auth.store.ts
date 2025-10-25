@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
             apellido_materno: data.apellido_materno,
             telefono: data.telefono,
             ci: data.ci,
-            matricula: data.matricula,
+            registro: data.registro,
             ppac: data.ppac,
             maestroDeOferta: maestroData,
           },

@@ -3,13 +3,12 @@
 import { getOfertaGrupoMateria } from "@/api/ofertaGrupoMateria";
 import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useInscripcionAsync } from "@/hooks/useInscripcionAsync";
-import InscripcionProgress from "@/components/InscripcionProgress";
 
 function GrupoMateriasContent({
   params,
@@ -23,15 +22,7 @@ function GrupoMateriasContent({
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   
-  // Hook para manejar inscripciones asíncronas
-  const {
-    isProcessing,
-    jobStatus,
-    success,
-    error: inscripcionError,
-    iniciarInscripcion,
-    cleanup,
-  } = useInscripcionAsync();
+  const router = useRouter();
 
   useEffect(() => {
     const loadData = async () => {
@@ -58,39 +49,7 @@ function GrupoMateriasContent({
     loadData();
   }, [params]);
 
-  // Cleanup del polling al desmontar el componente
-  useEffect(() => {
-    return () => {
-      cleanup();
-    };
-  }, [cleanup]);
 
-  // Recargar datos cuando la inscripción sea exitosa
-  useEffect(() => {
-    if (success) {
-      setTimeout(async () => {
-        setSelectedIds([]);
-        // Recargar los datos para obtener las materias actualizadas
-        try {
-          setLoading(true);
-          const resolvedParams = await params;
-          const { slug } = resolvedParams;
-          
-          const data: OfertaGrupoMateria[] = await getOfertaGrupoMateria(slug);
-          
-          console.log('Datos recargados después de inscripción:', data);
-          
-          setOfertasGrupoMateria(Array.isArray(data) ? data : []);
-          setError(null); // Limpiar cualquier error previo
-        } catch (err) {
-          console.error('Error al recargar las ofertas:', err);
-          setError(err instanceof Error ? err.message : 'Error al recargar los datos');
-        } finally {
-          setLoading(false);
-        }
-      }, 2000); // Esperar 2 segundos para mostrar el mensaje de éxito
-    }
-  }, [success, params]);
 
   // Handler para manejar la selección de checkboxes
   const handleCheckboxChange = (id: string) => {
@@ -107,9 +66,18 @@ function GrupoMateriasContent({
   const handleConfirmSelection = async () => {
     if (selectedIds.length === 0) return;
     
-    console.log('Iniciando inscripción para IDs:', selectedIds);
-    // Usar el hook para iniciar la inscripción asíncrona
-    await iniciarInscripcion(selectedIds);
+    // Obtener las materias completas seleccionadas
+    const materiasSeleccionadas = ofertasGrupoMateria.filter(oferta => 
+      selectedIds.includes(oferta.id)
+    );
+    
+    console.log('Materias seleccionadas para confirmar:', materiasSeleccionadas);
+    
+    // Guardar en localStorage para la página de confirmación
+    localStorage.setItem('materiasSeleccionadas', JSON.stringify(materiasSeleccionadas));
+    
+    // Redirigir a la página de confirmación
+    router.push('/confirmar-inscripcion');
   };
 
   // Handler para seleccionar/deseleccionar todos
@@ -363,33 +331,7 @@ function GrupoMateriasContent({
           )})}
         </div>
         
-        {/* Componente de progreso de inscripción */}
-        {isProcessing && (
-          <div className="mb-6">
-            <InscripcionProgress 
-              jobStatus={jobStatus}
-              isProcessing={isProcessing}
-              selectedCount={selectedIds.length}
-            />
-          </div>
-        )}
 
-        {/* Mensaje de error */}
-        {(error || inscripcionError) && (
-          <div className="mb-6">
-            <Card className="border-red-200 bg-red-50/80 backdrop-blur-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 text-red-700">
-                  <span className="text-xl">❌</span>
-                  <div>
-                    <p className="font-medium">Error en la inscripción</p>
-                    <p className="text-sm text-red-600">{error || inscripcionError}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {/* Panel de resumen y acciones */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
@@ -412,30 +354,13 @@ function GrupoMateriasContent({
             <div className="flex items-center gap-3">
               <Button
                 onClick={handleConfirmSelection}
-                disabled={selectedIds.length === 0 || isProcessing}
-                className={`px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${
-                  success 
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
-                    : isProcessing
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
-                }`}
+                disabled={selectedIds.length === 0}
+                className="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
               >
-                {isProcessing ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    {jobStatus?.status === 'queued' || jobStatus?.status === 'pending' ? 'En cola...' : 
-                     jobStatus?.status === 'waiting' ? 'Procesando...' : 'Iniciando...'}
-                  </div>
-                ) : success ? (
-                  <div className="flex items-center gap-2">
-                    <span>✅</span>
-                    ¡Inscripción exitosa!
-                  </div>
-                ) : selectedIds.length === 0 ? (
+                {selectedIds.length === 0 ? (
                   'Selecciona materias'
                 ) : (
-                  `Confirmar inscripción (${selectedIds.length})`
+                  `Continuar con ${selectedIds.length} materia${selectedIds.length !== 1 ? 's' : ''}`
                 )}
               </Button>
             </div>

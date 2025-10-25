@@ -1,15 +1,48 @@
 export type BoletaInscripcion = {
   id: string;
-  nota?: number;
-  grupoMateria: {
-    grupo: string;
-    materia: {
-      nombre: string;
-      creditos: number;
-      sigla: string;
-      nivel: {
-        semestre: number;
-      };
+  grupo: string;
+  inscritos: number;
+  cupos: number;
+  materiaId: string;
+  docenteId: string;
+  periodoId: string;
+  isActive: boolean;
+  updatedAt: string;
+  createdAt: string;
+  AulaGrupoMateria: Array<{
+    id: string;
+    grupoMateriaId: string;
+    aulaId: string;
+    isActive: boolean;
+    updatedAt: string;
+    createdAt: string;
+    aula: {
+      numero: number;
+    };
+    horario: Array<{
+      diaSemana: string;
+      horaInicio: string;
+      horaFin: string;
+    }>;
+  }>;
+  Docente: {
+    nombre: string;
+    apellido_paterno: string;
+    apellido_materno: string;
+  };
+  materia: {
+    id: string;
+    sigla: string;
+    nombre: string;
+    creditos: number;
+    esElectiva: boolean;
+    isActive: boolean;
+    nivelId: string;
+    planDeEstudioId: string;
+    updatedAt: string;
+    createdAt: string;
+    nivel: {
+      semestre: number;
     };
   };
 };

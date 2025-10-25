@@ -7,6 +7,6 @@ export const getInscripcionAsync = async (data: InscribirEstudiante) => {
 };
 
 export const getInscripcionStatus = async (taskId: string) => {
-  const response = await axios.get(`/colas/jobs/${taskId}/status`);
+  const response = await axios.get(`/inscripcion/job-status/${taskId}/`);
   return response.data;
 };
