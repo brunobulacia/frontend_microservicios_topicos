@@ -1,5 +1,5 @@
 type LoginDto = {
-  matricula: string;
+  registro: string;
   password: string;
 };
 export default LoginDto;

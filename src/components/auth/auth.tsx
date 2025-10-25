@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function LoginPage() {
   const [formData, setFormData] = useState<LoginDto>({
-    matricula: '',
+    registro: '',
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +46,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
+      console.log('Submitting login with data:', formData); // Debug log
       const response = await login(formData);
       console.log('Login response:', response); // Debug log
       
@@ -89,13 +90,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="matricula">Matrícula</Label>
+              <Label htmlFor="registro">Matrícula</Label>
               <Input
-                id="matricula"
-                name="matricula"
+                id="registro"
+                name="registro"
                 type="text"
                 required
-                value={formData.matricula}
+                value={formData.registro}
                 onChange={handleChange}
                 placeholder="223041866"
                 disabled={isLoading}
