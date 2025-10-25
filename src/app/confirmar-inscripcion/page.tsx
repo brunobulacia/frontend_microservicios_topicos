@@ -9,6 +9,7 @@ import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { getInscripcionAsync } from "@/api/inscripcion-async";
 import { useAuthStore } from "@/store/auth.store";
+import { useInscripcionStore } from "@/store/inscripcion.store";
 import { AlertCircle, FileText, BarChart3, CheckCircle2, User, MapPin, Clock } from 'lucide-react';
 
 function ConfirmarInscripcionContent() {
@@ -18,6 +19,7 @@ function ConfirmarInscripcionContent() {
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const { setActiveInscripcion } = useInscripcionStore();
 
   useEffect(() => {
     // Recuperar las materias seleccionadas del localStorage
@@ -58,7 +60,11 @@ function ConfirmarInscripcionContent() {
       
       console.log('Respuesta de inscripción:', response);
       
-      // Guardar el jobId y los datos en localStorage para la página de estado
+      // Guardar el estado de inscripción activa
+      const materiasNombres = materiasSeleccionadas.map(m => m.detalleGrupoMateria.materia.nombre);
+      setActiveInscripcion(response.jobId, materiasNombres);
+      
+      // También guardar en localStorage para compatibilidad
       localStorage.setItem('inscripcionTaskId', response.jobId);
       localStorage.setItem('materiasInscripcion', JSON.stringify(materiasSeleccionadas));
       
@@ -234,7 +240,7 @@ function ConfirmarInscripcionContent() {
                       <div className="text-sm">
                         <span className="text-gray-600">Cupos disponibles:</span>
                         <span className="ml-2 font-semibold text-gray-800">
-                          {detalle.inscritos} / {detalle.cupos}
+                          {detalle.cupos}
                         </span>
                       </div>
                     </div>

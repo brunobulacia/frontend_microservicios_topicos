@@ -24,7 +24,7 @@ export default function LoginPage() {
   // Si ya está autenticado, redirigir automáticamente
   useEffect(() => {
     if (token && maestroDeOferta && Array.isArray(maestroDeOferta) && maestroDeOferta.length > 0) {
-      router.replace(`/grupo-materias/${maestroDeOferta[0].id}`);
+      router.replace('/dashboard');
     }
   }, [token, maestroDeOferta, router]);
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
       setAuthData(response);
       
       // Usar replace para evitar problemas de navegación
-      await router.replace(`/grupo-materias/${maestroData[0].id}`);
+      await router.replace('/dashboard');
     } catch (err) {
       console.error('Login error:', err); // Debug log
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');

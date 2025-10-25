@@ -9,6 +9,7 @@ import { OfertaGrupoMateria } from "@/types/oferta-grupo-materia.dto";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { getInscripcionStatus } from "@/api/inscripcion-async";
 import { useAuthStore } from "@/store/auth.store";
+import { useInscripcionStore } from "@/store/inscripcion.store";
 import { AlertCircle, BarChart3, BookOpen, RotateCcw, CheckCircle, XCircle, Clock, Loader, FileText, Home } from 'lucide-react';
 
 type JobStatus = 'completed' | 'waiting' | 'active' | 'delayed' | 'failed' | 'paused';
@@ -47,6 +48,7 @@ function EstadoInscripcionContent() {
   const [polling, setPolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const user = useAuthStore((state) => state.user);
+  const { updateJobStatus, clearActiveInscripcion } = useInscripcionStore();
 
   useEffect(() => {
     // Obtener jobId de los query params o localStorage
@@ -82,9 +84,22 @@ function EstadoInscripcionContent() {
       const response = await getInscripcionStatus(currentJobId);
       setJobResponse(response);
       
+      // Actualizar el store con el nuevo estado
+      updateJobStatus(response.status);
+      
       // Si el job está completado o falló, detener el polling
       if (response.status === 'completed' || response.status === 'failed') {
         setPolling(false);
+        
+        // Si está completado o falló, limpiar la inscripción activa después de un tiempo
+        if (response.status === 'completed') {
+          setTimeout(() => {
+            clearActiveInscripcion();
+          }, 30000); // Limpiar después de 30 segundos para dar tiempo a ver el resultado
+        } else if (response.status === 'failed') {
+          // Para errores, limpiar inmediatamente para permitir nuevos intentos
+          clearActiveInscripcion();
+        }
         
         if (response.status === 'completed') {
           // Limpiar localStorage después de completar
@@ -182,14 +197,16 @@ function EstadoInscripcionContent() {
   };
 
   const handleVolverInicio = () => {
-    router.push('/');
+    // Navegar al dashboard, manteniendo la inscripción activa si no está completa
+    router.push('/dashboard');
   };
 
   const handleIntentarDeNuevo = () => {
     // Limpiar datos y volver a la selección
     localStorage.removeItem('inscripcionTaskId');
     localStorage.removeItem('materiasInscripcion');
-    router.push('/');
+    clearActiveInscripcion();
+    router.push('/dashboard');
   };
 
   if (loading) {

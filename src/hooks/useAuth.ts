@@ -5,17 +5,20 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export function useAuth() {
-  const { token, user, clearAuthData } = useAuthStore();
+  const { token, user, clearAuthData, isHydrated } = useAuthStore();
   const router = useRouter();
 
   const logout = () => {
     clearAuthData();
-    router.push("/login");
+    router.push("/");
   };
 
   const requireAuth = () => {
+    if (!isHydrated) {
+      return false; // Aún está cargando
+    }
     if (!token) {
-      router.push("/login");
+      router.push("/");
       return false;
     }
     return true;
@@ -23,7 +26,7 @@ export function useAuth() {
 
   useEffect(() => {
     // Verificar si el token está expirado (opcional)
-    if (token) {
+    if (token && isHydrated) {
       try {
         // Si el token es JWT, puedes decodificarlo y verificar la expiración
         // const payload = JSON.parse(atob(token.split('.')[1]));
@@ -34,14 +37,14 @@ export function useAuth() {
         console.error("Error validating token:", error);
       }
     }
-  }, [token]);
+  }, [token, isHydrated]);
 
   return {
     token,
     user,
     logout,
     requireAuth,
-    isAuthenticated: !!token,
-    isLoading: false, // Puedes agregar lógica de loading si es necesario
+    isAuthenticated: !!token && isHydrated,
+    isLoading: !isHydrated,
   };
 }

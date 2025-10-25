@@ -67,7 +67,7 @@ export default function MateriaCard({ materia }: MateriaCardProps) {
           </div>
 
           {/* Información de cupos */}
-          <div className="flex items-center justify-between text-sm">
+          {/* <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600 font-medium flex items-center gap-1">
               <Users className="w-4 h-4" />
               Cupos:
@@ -75,7 +75,7 @@ export default function MateriaCard({ materia }: MateriaCardProps) {
             <span className="text-slate-800 font-semibold">
               {materia.inscritos} / {materia.cupos}
             </span>
-          </div>
+          </div> */}
 
           {/* Información del aula y horario */}
           {aula && (

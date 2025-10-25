@@ -6,8 +6,10 @@ interface AuthState {
   token: LoginResponseDto["access_token"] | null;
   user: Omit<LoginResponseDto, "access_token"> | null;
   maestroDeOferta: MaestroDeOferta[] | null;
+  isHydrated: boolean;
   setAuthData: (data: LoginResponseDto) => void;
   clearAuthData: () => void;
+  setHydrated: (hydrated: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -16,6 +18,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       user: null,
       maestroDeOferta: null,
+      isHydrated: false,
       setAuthData: (data) => {
         const maestroData = data.MaestroDeOferta || data.maestroDeOferta;
         set({
@@ -41,9 +44,13 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           maestroDeOferta: null,
         }),
+      setHydrated: (hydrated) => set({ isHydrated: hydrated }),
     }),
     {
       name: "auth", // storage key for persist middleware
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
     }
   )
 );

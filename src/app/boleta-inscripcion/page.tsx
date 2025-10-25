@@ -85,7 +85,7 @@ function BoletaContent() {
       </div>
 
       {/* Estadísticas Generales */}
-      <EstadisticasBoleta materias={materias} />
+      {/* <EstadisticasBoleta materias={materias} /> */}
 
       {/* Materias por Semestre */}
       {Object.keys(materiasPorSemestre).length > 0 ? (

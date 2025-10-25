@@ -8,22 +8,23 @@ import { useState } from 'react';
 import { GraduationCap, Home, FileText, User, LogOut, Menu, X } from 'lucide-react';
 
 export default function Navbar() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  if (!isAuthenticated) {
+  // No mostrar navbar durante la carga o si no está autenticado
+  if (isLoading || !isAuthenticated) {
     return null;
   }
 
   const navigation = [
-    { name: 'Inicio', href: '/', icon: Home },
+    { name: 'Inicio', href: '/dashboard', icon: Home },
     { name: 'Mi Boleta', href: '/boleta-inscripcion', icon: FileText },
   ];
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/';
+    if (href === '/dashboard') {
+      return pathname === '/dashboard';
     }
     return pathname.startsWith(href);
   };
