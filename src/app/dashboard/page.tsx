@@ -6,7 +6,6 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import InscripcionActivaBanner from '@/components/InscripcionActivaBanner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import { BookOpen, Users, Clock, AlertCircle } from 'lucide-react';
 

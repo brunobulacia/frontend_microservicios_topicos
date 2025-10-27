@@ -4,9 +4,7 @@ import { BoletaInscripcion } from "@/types/boleta-inscripcion";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import MateriaCard from "@/components/MateriaCard";
-import EstadisticasBoleta from "@/components/EstadisticasBoleta";
 
 function BoletaContent() {
   const { user } = useAuthStore();
@@ -21,7 +19,6 @@ function BoletaContent() {
         if (user) {
           const data = await getMateriasInscritas(user.id.toString());
           console.log('Datos de boleta:', data);
-          // Asumiendo que la API devuelve un array de BoletaInscripcion
           setMaterias(Array.isArray(data) ? data : []);
         }
       } catch (err) {
@@ -84,8 +81,6 @@ function BoletaContent() {
         </p>
       </div>
 
-      {/* Estadísticas Generales */}
-      {/* <EstadisticasBoleta materias={materias} /> */}
 
       {/* Materias por Semestre */}
       {Object.keys(materiasPorSemestre).length > 0 ? (

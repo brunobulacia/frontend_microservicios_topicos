@@ -15,13 +15,11 @@ export default function ProtectedRoute({ children, fallback }: ProtectedRoutePro
   const router = useRouter();
 
   useEffect(() => {
-    // Solo redirigir si ya se hidró y no hay token
     if (isHydrated && !token) {
       router.push('/');
     }
   }, [token, isHydrated, router]);
 
-  // Mostrar loading mientras se hidrata o si no hay token pero aún se está hidratando
   if (!isHydrated || (!token && isHydrated)) {
     return fallback || (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">

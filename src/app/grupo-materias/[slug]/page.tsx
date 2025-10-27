@@ -41,7 +41,6 @@ function GrupoMateriasContent({
         setOfertasGrupoMateria(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error al cargar la oferta:', err);
-        setError(err instanceof Error ? err.message : 'Error desconocido');
       } finally {
         setLoading(false);
       }
@@ -123,7 +122,7 @@ function GrupoMateriasContent({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">{error}</p>
+              <p className="text-gray-600">{}</p>
               <Button 
                 onClick={() => window.location.reload()} 
                 className="mt-4"

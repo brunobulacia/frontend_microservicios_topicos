@@ -3,7 +3,7 @@
 import { BoletaInscripcion } from "@/types/boleta-inscripcion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, User, Users, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { BookOpen, User, MapPin, Clock, CheckCircle } from 'lucide-react';
 
 interface MateriaCardProps {
   materia: BoletaInscripcion;
@@ -66,18 +66,6 @@ export default function MateriaCard({ materia }: MateriaCardProps) {
             </span>
           </div>
 
-          {/* Información de cupos */}
-          {/* <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 font-medium flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              Cupos:
-            </span>
-            <span className="text-slate-800 font-semibold">
-              {materia.inscritos} / {materia.cupos}
-            </span>
-          </div> */}
-
-          {/* Información del aula y horario */}
           {aula && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
