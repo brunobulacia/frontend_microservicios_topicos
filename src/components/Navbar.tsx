@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { GraduationCap, Home, FileText, User, LogOut, Menu, X } from 'lucide-react';
+import { GraduationCap, Home, FileText, User, LogOut, Menu, X, NotebookText } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
@@ -20,6 +20,7 @@ export default function Navbar() {
   const navigation = [
     { name: 'Inicio', href: '/dashboard', icon: Home },
     { name: 'Mi Boleta', href: '/boleta-inscripcion', icon: FileText },
+    {name : 'Mi Avance', href: '/avance-academico', icon: NotebookText}
   ];
 
   const isActive = (href: string) => {

@@ -11,32 +11,8 @@ import { getInscripcionStatus } from "@/api/inscripcion-async";
 import { useAuthStore } from "@/store/auth.store";
 import { useInscripcionStore } from "@/store/inscripcion.store";
 import { AlertCircle, BarChart3, BookOpen, RotateCcw, CheckCircle, XCircle, Clock, Loader, FileText, Home } from 'lucide-react';
+import { JobResponse, JobStatus } from "@/types/job-response.dto";
 
-type JobStatus = 'completed' | 'waiting' | 'active' | 'delayed' | 'failed' | 'paused';
-
-type JobResponse = {
-  jobId: string;
-  queueName: string;
-  status: JobStatus;
-  data: {
-    registro: string;
-    ofertaId: string[];
-  };
-  progress: number;
-  createdAt: string;
-  processedOn?: string;
-  finishedOn?: string;
-  returnValue?: {
-    message: string;
-    [key: string]: any;
-  };
-  attemptsMade: number;
-  opts: {
-    attempts: number;
-    delay: number;
-  };
-  failedReason?: string;
-};
 
 function EstadoInscripcionContent() {
   const router = useRouter();
