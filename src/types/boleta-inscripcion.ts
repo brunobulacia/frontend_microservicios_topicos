@@ -45,4 +45,7 @@ export type BoletaInscripcion = {
       semestre: number;
     };
   };
+  nota: {
+    nota: number;
+  };
 };

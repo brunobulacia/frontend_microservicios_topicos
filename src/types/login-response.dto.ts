@@ -5,7 +5,7 @@ export interface MaestroDeOferta {
 
 export interface LoginResponseDto {
   access_token: string;
-  id: number;
+  id: string;
   nombre: string;
   email: string;
   apellido_paterno: string;

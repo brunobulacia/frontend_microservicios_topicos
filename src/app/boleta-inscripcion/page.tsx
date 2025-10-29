@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MateriaCard from "@/components/MateriaCard";
+import { BookOpen } from "lucide-react";
+
 
 function BoletaContent() {
   const { user } = useAuthStore();
@@ -21,14 +23,20 @@ function BoletaContent() {
           console.log('Datos de boleta:', data);
           setMaterias(Array.isArray(data) ? data : []);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error al cargar boleta:', err);
-        setError(err instanceof Error ? err.message : 'Error desconocido');
+        // Intenta extraer el mensaje del backend (Axios error)
+        let backendMessage = 'Error desconocido';
+        if (err?.response?.data?.message) {
+          backendMessage = err.response.data.message;
+        } else if (err?.message) {
+          backendMessage = err.message;
+        }
+        setError(backendMessage);
       } finally {
         setLoading(false);
       }
     };
-    
     fetchBoleta();
   }, [user?.registro]);
 
@@ -48,9 +56,10 @@ function BoletaContent() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
-          <p className="text-gray-600">{error}</p>
+        <div className="text-center flex flex-row justify-center items-center gap-2">
+           <BookOpen className="w-7 h-7 text-slate-600 inline mb-1" />
+           <h1 className="text-3xl font-bold text-slate-800 mb-2">{error}</h1>
+          {/* <p className="text-gray-600">{error}</p> */}
         </div>
       </div>
     );
